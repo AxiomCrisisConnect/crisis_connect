@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "845941652373",
+    "firebase_url": "https://crisislink-1428f-default-rtdb.firebaseio.com",
+    "project_id": "crisislink-1428f",
+    "storage_bucket": "crisislink-1428f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:845941652373:android:5ec2e5dcaf8b114172d49c",
+        "android_client_info": {
+          "package_name": "com.crisisconnect.crisis_connect"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "845941652373-i2c4j2n2n1rlu1n9qt1lsbckobc4krm1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.crisisconnect.crisis_connect",
+            "certificate_hash": "7754a4a7d9924a1538c898c1a6c5b34ac636eaae"
+          }
+        },
+        {
+          "client_id": "845941652373-agrqe40glt91c6qaoqaoa680fqtga089.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD_cdQxJ5O_N8HXKqVlD5FSI_D-6JDh0uM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "845941652373-agrqe40glt91c6qaoqaoa680fqtga089.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

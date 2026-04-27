@@ -1,0 +1,66 @@
+name: crisis_connect
+description: "CrisisConnect — Crisis Response & Volunteer Coordination Platform"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # UI & Icons
+  cupertino_icons: ^1.0.8
+  google_fonts: ^6.2.1
+
+  # State Management
+  flutter_riverpod: ^2.6.1
+
+  # Navigation
+  go_router: ^14.6.2
+
+  # Firebase
+  # TODO: Add google-services.json (Android) and GoogleService-Info.plist (iOS) before running
+  # TODO: Enable Email/Password provider in Firebase Console → Authentication → Sign-in methods
+  # TODO: Enable Google provider in Firebase Console → Authentication → Sign-in methods
+  # TODO: Add SHA-1 and SHA-256 fingerprints in Firebase Console for Google Sign-In on Android
+  # TODO: For iOS Google Sign-In, add REVERSED_CLIENT_ID to URL schemes in Info.plist
+  firebase_core: ^3.13.0
+  firebase_auth: ^5.5.1
+  firebase_storage: ^12.4.4
+
+  # Google Sign-In
+  google_sign_in: ^6.2.2
+
+  # Location
+  geolocator: ^13.0.2
+
+  # TODO: Add google_maps_flutter after adding API key to manifests
+  # google_maps_flutter: ^2.10.0
+
+  # File picking
+  file_picker: ^8.1.7
+  image_picker: ^1.1.2
+
+  # Local storage
+  shared_preferences: ^2.3.5
+
+  # Utilities
+  uuid: ^4.5.1
+  intl: ^0.20.2
+  equatable: ^2.0.7
+  permission_handler: ^11.3.1
+  firebase_database: ^11.3.10
+  cloud_firestore: ^5.6.12
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/icons/
