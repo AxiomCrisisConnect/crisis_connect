@@ -29,14 +29,27 @@ class _VolunteerHomeScreenState extends ConsumerState<VolunteerHomeScreen> {
 
   Future<void> _loadActiveAssignment() async {
     final user = ref.read(currentUserProvider);
-    if (user == null) return;
-    final repo = ref.read(emergencyRepositoryProvider);
-    final a = await repo.getActiveAssignmentForVolunteer(user.id);
-    if (mounted) {
-      setState(() {
-        _activeAssignment = a;
-        _loadingAssignment = false;
-      });
+    if (user == null) {
+      if (mounted) setState(() => _loadingAssignment = false);
+      return;
+    }
+    try {
+      final repo = ref.read(emergencyRepositoryProvider);
+      final a = await repo.getActiveAssignmentForVolunteer(user.id);
+      if (mounted) {
+        setState(() {
+          _activeAssignment = a;
+          _loadingAssignment = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('[VolunteerHome] _loadActiveAssignment error: $e');
+      if (mounted) {
+        setState(() {
+          _activeAssignment = null;
+          _loadingAssignment = false;
+        });
+      }
     }
   }
 

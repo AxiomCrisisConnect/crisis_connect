@@ -167,6 +167,7 @@ class _CivilianHomeScreenState extends ConsumerState<CivilianHomeScreen>
         _activeRequest = request;
         _activeAssignment = null;
       });
+      context.push(AppRoutes.sosActive, extra: request.id);
     } catch (e) {
       setState(() => _isSOSLoading = false);
       if (mounted) ErrorSnackBar.show(context, 'Failed to send SOS: $e');
@@ -210,6 +211,14 @@ class _CivilianHomeScreenState extends ConsumerState<CivilianHomeScreen>
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(currentUserProvider);
+
+    if (_loadingActive) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator(color: AppColors.sos)),
+      );
+    }
+
+
 
     return Scaffold(
       body: Container(
@@ -303,23 +312,125 @@ class _CivilianHomeScreenState extends ConsumerState<CivilianHomeScreen>
           const SizedBox(height: 28),
 
           // ── Active Emergency or SOS Button ──
-          if (_loadingActive)
-            const Center(
-                child: CircularProgressIndicator(color: AppColors.sos))
-          else if (_activeRequest != null)
-            _ActiveRequestCard(
-              request: _activeRequest!,
-              assignment: _activeAssignment,
-              onCancel: _cancelActiveRequest,
-              onViewDetails: () {
+          if (_activeRequest != null)
+            GestureDetector(
+              onTap: () {
                 final route = _activeRequest!.type == EmergencyType.sos
                     ? AppRoutes.sosActive
                     : AppRoutes.helpActive;
                 context.push(route, extra: _activeRequest!.id);
               },
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceVariant,
+                  borderRadius: BorderRadius.circular(28),
+                  gradient: LinearGradient(
+                    colors: [
+                      (_activeRequest!.type == EmergencyType.sos ? AppColors.sos : AppColors.help).withValues(alpha: 0.15),
+                      (_activeRequest!.type == EmergencyType.sos ? AppColors.sos : AppColors.help).withValues(alpha: 0.02),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  border: Border.all(
+                    color: (_activeRequest!.type == EmergencyType.sos ? AppColors.sos : AppColors.help).withValues(alpha: 0.4),
+                    width: 1.5,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: (_activeRequest!.type == EmergencyType.sos ? AppColors.sos : AppColors.help).withValues(alpha: 0.15),
+                      blurRadius: 24,
+                      spreadRadius: 0,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    // Animated Pulse Icon
+                    Container(
+                      width: 56,
+                      height: 56,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: (_activeRequest!.type == EmergencyType.sos ? AppColors.sos : AppColors.help).withValues(alpha: 0.2),
+                      ),
+                      child: Center(
+                        child: ScaleTransition(
+                          scale: _pulseAnim,
+                          child: Icon(
+                            _activeRequest!.type == EmergencyType.sos ? Icons.my_location_rounded : Icons.handshake_rounded,
+                            color: _activeRequest!.type == EmergencyType.sos ? AppColors.sosLight : AppColors.helpLight,
+                            size: 28,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 20),
+                    // Text details
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                width: 6,
+                                height: 6,
+                                decoration: BoxDecoration(
+                                  color: _activeRequest!.type == EmergencyType.sos ? AppColors.sos : AppColors.helpLight,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                _activeRequest!.type == EmergencyType.sos ? 'LIVE SOS ALERT' : 'LIVE HELP REQUEST',
+                                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                                      color: _activeRequest!.type == EmergencyType.sos ? AppColors.sosLight : AppColors.helpLight,
+                                      fontWeight: FontWeight.w800,
+                                      letterSpacing: 1.5,
+                                    ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            'Tracking responders in real-time',
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Tap to view map & status',
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppColors.surface,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: AppColors.border),
+                        boxShadow: [
+                           BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.1),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: AppColors.textPrimary),
+                    ),
+                  ],
+                ),
+              ),
             )
           else ...[
-            // SOS Button
+            // ── SOS Button ──
             Center(
               child: ScaleTransition(
                 scale: _pulseAnim,
@@ -427,7 +538,6 @@ class _CivilianHomeScreenState extends ConsumerState<CivilianHomeScreen>
               ),
             ),
           ],
-
           const SizedBox(height: 20),
 
           // Safety tips — always visible
@@ -537,211 +647,6 @@ class _CivilianHomeScreenState extends ConsumerState<CivilianHomeScreen>
   }
 }
 
-// ─── Active Request Card ──────────────────────────────────────────────────────
-
-class _ActiveRequestCard extends StatelessWidget {
-  final EmergencyRequest request;
-  final Assignment? assignment;
-  final VoidCallback onCancel;
-  final VoidCallback onViewDetails;
-
-  const _ActiveRequestCard({
-    required this.request,
-    required this.assignment,
-    required this.onCancel,
-    required this.onViewDetails,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final isSOS = request.type == EmergencyType.sos;
-    final isAssigned = request.status == EmergencyStatus.assigned ||
-        assignment?.status == AssignmentStatus.accepted;
-
-    final accentColor = isSOS ? AppColors.sos : AppColors.help;
-    final accentLight = isSOS ? AppColors.sosLight : AppColors.helpLight;
-
-    return GlassCard(
-      borderColor: accentColor,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Status header
-          Row(
-            children: [
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: accentColor.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    _PulsingDot(color: accentColor),
-                    const SizedBox(width: 6),
-                    Text(
-                      isSOS ? 'SOS ACTIVE' : 'HELP REQUEST ACTIVE',
-                      style: TextStyle(
-                          color: accentLight,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 11,
-                          letterSpacing: 1),
-                    ),
-                  ],
-                ),
-              ),
-              const Spacer(),
-              Text(
-                _timeAgo(request.timestamp),
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-
-          // Status info
-          _StatusRow(
-            icon: isAssigned
-                ? Icons.person_pin_rounded
-                : Icons.search_rounded,
-            label: isAssigned
-                ? (assignment != null
-                    ? 'Volunteer assigned: ${assignment!.volunteerName}'
-                    : 'Volunteer assigned')
-                : 'Searching for nearest volunteers...',
-            color: isAssigned ? AppColors.success : AppColors.accent,
-          ),
-          const SizedBox(height: 8),
-          if (request.helpCategory != null) ...[
-            _StatusRow(
-              icon: Icons.category_rounded,
-              label: request.helpCategory!.label,
-              color: AppColors.textSecondary,
-            ),
-            const SizedBox(height: 8),
-          ],
-
-          // Map
-          const SizedBox(height: 8),
-          LocationMap(
-            latitude: request.latitude,
-            longitude: request.longitude,
-            height: 180,
-            interactive: false,
-          ),
-          const SizedBox(height: 16),
-
-          // Action buttons
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: onCancel,
-                  icon: const Icon(Icons.cancel_outlined, size: 18),
-                  label: const Text('Cancel'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.textSecondary,
-                    side: const BorderSide(color: AppColors.border),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: onViewDetails,
-                  icon: const Icon(Icons.open_in_new_rounded, size: 18),
-                  label: const Text('View Details'),
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: accentColor),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _timeAgo(DateTime dt) {
-    final diff = DateTime.now().difference(dt);
-    if (diff.inSeconds < 60) return 'Just now';
-    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
-    return '${diff.inHours}h ago';
-  }
-}
-
-class _StatusRow extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final Color color;
-
-  const _StatusRow(
-      {required this.icon, required this.label, required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Icon(icon, size: 16, color: color),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(label,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium
-                  ?.copyWith(color: color)),
-        ),
-      ],
-    );
-  }
-}
-
-class _PulsingDot extends StatefulWidget {
-  final Color color;
-  const _PulsingDot({required this.color});
-  @override
-  State<_PulsingDot> createState() => _PulsingDotState();
-}
-
-class _PulsingDotState extends State<_PulsingDot>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _ctrl;
-  late Animation<double> _anim;
-
-  @override
-  void initState() {
-    super.initState();
-    _ctrl = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 800))
-      ..repeat(reverse: true);
-    _anim = Tween<double>(begin: 0.3, end: 1.0)
-        .animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut));
-  }
-
-  @override
-  void dispose() {
-    _ctrl.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _anim,
-      builder: (_, child) => Container(
-        width: 7,
-        height: 7,
-        decoration: BoxDecoration(
-          color: widget.color.withValues(alpha: _anim.value),
-          shape: BoxShape.circle,
-        ),
-      ),
-    );
-  }
-}
-
 // ─── Info Banner ──────────────────────────────────────────────────────────────
 
 class _InfoBanner extends StatelessWidget {
@@ -789,11 +694,20 @@ class _InfoBanner extends StatelessWidget {
 
 // ─── SOS History Tab ──────────────────────────────────────────────────────────
 
-class SOSHistoryTab extends ConsumerWidget {
+class SOSHistoryTab extends ConsumerStatefulWidget {
   const SOSHistoryTab({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SOSHistoryTab> createState() => _SOSHistoryTabState();
+}
+
+class _SOSHistoryTabState extends ConsumerState<SOSHistoryTab> {
+  Future<void> _refresh() async {
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final user = ref.watch(currentUserProvider);
 
     return FutureBuilder<List<EmergencyRequest>>(
@@ -806,31 +720,35 @@ class SOSHistoryTab extends ConsumerWidget {
               child: CircularProgressIndicator(color: AppColors.accent));
         }
         final requests = snap.data ?? [];
-        return ListView(
-          padding: const EdgeInsets.all(24),
-          children: [
-            Text('Request History',
-                style: Theme.of(context).textTheme.displayMedium),
-            const SizedBox(height: 20),
-            if (requests.isEmpty)
-              GlassCard(
-                child: Column(
-                  children: [
-                    const Icon(Icons.history_rounded,
-                        size: 48, color: AppColors.textHint),
-                    const SizedBox(height: 12),
-                    Text('No requests yet',
-                        style: Theme.of(context).textTheme.headlineMedium),
-                    const SizedBox(height: 6),
-                    Text('Your SOS and help requests will appear here',
-                        style: Theme.of(context).textTheme.bodySmall,
-                        textAlign: TextAlign.center),
-                  ],
-                ),
-              )
-            else
-              ...requests.map((r) => _HistoryTile(request: r)),
-          ],
+        return RefreshIndicator(
+          color: AppColors.accent,
+          onRefresh: _refresh,
+          child: ListView(
+            padding: const EdgeInsets.all(24),
+            children: [
+              Text('Request History',
+                  style: Theme.of(context).textTheme.displayMedium),
+              const SizedBox(height: 20),
+              if (requests.isEmpty)
+                GlassCard(
+                  child: Column(
+                    children: [
+                      const Icon(Icons.history_rounded,
+                          size: 48, color: AppColors.textHint),
+                      const SizedBox(height: 12),
+                      Text('No requests yet',
+                          style: Theme.of(context).textTheme.headlineMedium),
+                      const SizedBox(height: 6),
+                      Text('Your SOS and help requests will appear here',
+                          style: Theme.of(context).textTheme.bodySmall,
+                          textAlign: TextAlign.center),
+                    ],
+                  ),
+                )
+              else
+                ...requests.map((r) => _HistoryTile(request: r)),
+            ],
+          ),
         );
       },
     );

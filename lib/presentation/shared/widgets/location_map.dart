@@ -6,9 +6,10 @@ import '../../../core/theme/app_theme.dart';
 class LocationMap extends StatelessWidget {
   final double latitude;
   final double longitude;
-  final double height;
+  final double? height;
   final double zoom;
   final bool interactive;
+  final double borderRadius;
 
   const LocationMap({
     super.key,
@@ -17,6 +18,7 @@ class LocationMap extends StatelessWidget {
     this.height = 200,
     this.zoom = 15.0,
     this.interactive = true,
+    this.borderRadius = 16,
   });
 
   @override
@@ -26,15 +28,19 @@ class LocationMap extends StatelessWidget {
     return Container(
       height: height,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border, width: 1.5),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(borderRadius),
+        border: borderRadius > 0
+            ? Border.all(color: AppColors.border, width: 1.5)
+            : null,
+        boxShadow: borderRadius > 0
+            ? [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.1),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ]
+            : null,
       ),
       clipBehavior: Clip.antiAlias,
       child: FlutterMap(

@@ -151,41 +151,54 @@ class EmergencyRepository {
   Future<Assignment?> getActiveAssignmentForVolunteer(String volunteerId) async {
     final snap = await _assignments
         .where('volunteer_id', isEqualTo: volunteerId)
-        .where('status', whereIn: [
-          AssignmentStatus.pending.name,
-          AssignmentStatus.accepted.name,
-        ])
-        .orderBy('assigned_at', descending: true)
-        .limit(1)
         .get();
-    if (snap.docs.isEmpty) return null;
-    final data = Map<String, dynamic>.from(snap.docs.first.data());
-    data.putIfAbsent('id', () => snap.docs.first.id);
-    return Assignment.fromMap(data);
+        
+    final docs = snap.docs.where((doc) {
+      final s = doc.data()['status']?.toString();
+      return s == AssignmentStatus.pending.name ||
+             s == AssignmentStatus.accepted.name;
+    }).toList();
+    
+    if (docs.isEmpty) return null;
+    
+    final assignments = docs.map((doc) {
+      final data = Map<String, dynamic>.from(doc.data());
+      data.putIfAbsent('id', () => doc.id);
+      return Assignment.fromMap(data);
+    }).toList();
+    
+    assignments.sort((a, b) => b.assignedAt.compareTo(a.assignedAt));
+    return assignments.first;
   }
 
   Future<List<Assignment>> getAssignmentsForVolunteer(String volunteerId) async {
     final snap = await _assignments
         .where('volunteer_id', isEqualTo: volunteerId)
-        .orderBy('assigned_at', descending: true)
         .get();
-    return snap.docs.map((doc) {
+        
+    final assignments = snap.docs.map((doc) {
       final data = Map<String, dynamic>.from(doc.data());
       data.putIfAbsent('id', () => doc.id);
       return Assignment.fromMap(data);
     }).toList();
+    
+    assignments.sort((a, b) => b.assignedAt.compareTo(a.assignedAt));
+    return assignments;
   }
 
   Future<List<Assignment>> getAssignmentsForCivilian(String civilianId) async {
     final snap = await _assignments
         .where('civilian_id', isEqualTo: civilianId)
-        .orderBy('assigned_at', descending: true)
         .get();
-    return snap.docs.map((doc) {
+        
+    final assignments = snap.docs.map((doc) {
       final data = Map<String, dynamic>.from(doc.data());
       data.putIfAbsent('id', () => doc.id);
       return Assignment.fromMap(data);
     }).toList();
+    
+    assignments.sort((a, b) => b.assignedAt.compareTo(a.assignedAt));
+    return assignments;
   }
 
   Future<void> rateVolunteer(

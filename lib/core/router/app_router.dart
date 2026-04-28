@@ -18,9 +18,8 @@ import 'package:crisis_connect/presentation/volunteer/screens/assignment_history
 
 // Civilian screens
 import 'package:crisis_connect/presentation/civilian/screens/civilian_home_screen.dart';
-import 'package:crisis_connect/presentation/civilian/screens/sos_active_screen.dart';
+import 'package:crisis_connect/presentation/civilian/screens/live_tracking_screen.dart';
 import 'package:crisis_connect/presentation/civilian/screens/help_request_screen.dart';
-import 'package:crisis_connect/presentation/civilian/screens/help_active_screen.dart';
 import 'package:crisis_connect/presentation/civilian/screens/sos_history_screen.dart';
 
 // Shared
@@ -176,7 +175,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: AppRoutes.sosActive,
-        builder: (context, state) => SOSActiveScreen(
+        builder: (context, state) => LiveTrackingScreen(
           requestId: state.extra as String? ?? '',
         ),
       ),
@@ -186,7 +185,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: AppRoutes.helpActive,
-        builder: (context, state) => HelpActiveScreen(
+        builder: (context, state) => LiveTrackingScreen(
           requestId: state.extra as String? ?? '',
         ),
       ),
