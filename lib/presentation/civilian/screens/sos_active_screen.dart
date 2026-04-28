@@ -120,129 +120,36 @@ class _SOSActiveScreenState extends ConsumerState<SOSActiveScreen>
                 ),
               ),
               const SizedBox(height: 32),
-              // Help is on the way
               GlassCard(
-                borderColor: AppColors.success,
+                borderColor: AppColors.accent,
                 child: Column(
                   children: [
-                    const Icon(Icons.local_hospital_rounded,
-                        size: 48, color: AppColors.successLight),
+                    const Icon(Icons.check_circle_rounded,
+                        size: 48, color: AppColors.accentLight),
                     const SizedBox(height: 12),
-                    Text('Help is on the way!',
+                    Text('Request received',
                         style: Theme.of(context)
                             .textTheme
                             .headlineLarge
-                            ?.copyWith(color: AppColors.successLight),
+                            ?.copyWith(color: AppColors.accentLight),
                         textAlign: TextAlign.center),
                     const SizedBox(height: 8),
                     Text(
-                      'Emergency responders have been notified and are heading to your location.',
+                      'We are locating nearby responders. You will see updates once someone is assigned.',
                       style: Theme.of(context).textTheme.bodyMedium,
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 20),
-                    // ETA mock
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: AppColors.success.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(
-                            color: AppColors.success.withValues(alpha: 0.3)),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.timer_outlined,
-                              color: AppColors.successLight, size: 20),
-                          const SizedBox(width: 8),
-                          Text('Estimated Arrival: ',
-                              style: Theme.of(context).textTheme.bodyMedium),
-                          Text('8–12 minutes',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium
-                                  ?.copyWith(color: AppColors.successLight)),
-                        ],
-                      ),
-                    ),
                   ],
                 ),
               ),
               const SizedBox(height: 20),
-              // Assigned Volunteer Card
-              GlassCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Assigned Responders',
-                        style: Theme.of(context).textTheme.headlineMedium),
-                    const SizedBox(height: 14),
-                    _VolunteerTile(
-                      name: 'Dr. Arun Kumar',
-                      skills: 'Medical · Rescue',
-                      eta: '8 min',
-                    ),
-                    const Divider(color: AppColors.divider, height: 24),
-                    _VolunteerTile(
-                      name: 'Priya Nair',
-                      skills: 'Rescue · Communication',
-                      eta: '10 min',
-                    ),
-                  ],
+              if (_request != null)
+                LocationMap(
+                  latitude: _request!.latitude,
+                  longitude: _request!.longitude,
+                  height: 250,
+                  interactive: false,
                 ),
-              ),
-              const SizedBox(height: 20),
-              // Location card
-              GlassCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        const Icon(Icons.location_on_rounded,
-                            color: AppColors.sos, size: 20),
-                        const SizedBox(width: 8),
-                        Text('Your Location',
-                            style: Theme.of(context).textTheme.titleLarge),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    // TODO: Replace with real Google Maps widget
-                    Container(
-                      height: 160,
-                      decoration: BoxDecoration(
-                        color: AppColors.surfaceVariant,
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: AppColors.border),
-                      ),
-                      child: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.map_rounded,
-                                size: 40, color: AppColors.textHint),
-                            const SizedBox(height: 8),
-                            Text(
-                              _request != null
-                                  ? '${_request!.latitude.toStringAsFixed(4)}, ${_request!.longitude.toStringAsFixed(4)}'
-                                  : 'Location captured',
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                            Text(
-                              'TODO: Integrate google_maps_flutter here',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
-                                  ?.copyWith(color: AppColors.textHint),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
               const SizedBox(height: 24),
               OutlinedButton.icon(
                 onPressed: _cancelSOS,

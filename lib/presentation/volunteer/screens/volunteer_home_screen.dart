@@ -428,16 +428,16 @@ class _ActiveAssignmentCard extends StatelessWidget {
           const SizedBox(height: 8),
           _DetailRow(
               icon: Icons.person_rounded, text: assignment.civilianName),
-          const SizedBox(height: 6),
-          _DetailRow(
-            icon: Icons.location_on_rounded,
-            text:
-                '${assignment.emergencyLatitude.toStringAsFixed(4)}, ${assignment.emergencyLongitude.toStringAsFixed(4)}',
-          ),
-          const SizedBox(height: 6),
           _DetailRow(
             icon: Icons.star_rounded,
             text: assignment.volunteerSkills.join(', '),
+          ),
+          const SizedBox(height: 16),
+          LocationMap(
+            latitude: assignment.emergencyLatitude,
+            longitude: assignment.emergencyLongitude,
+            height: 160,
+            interactive: false,
           ),
           const SizedBox(height: 16),
           if (isPending) ...[

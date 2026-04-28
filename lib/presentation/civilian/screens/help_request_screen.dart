@@ -5,7 +5,6 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/router/app_router.dart';
 import '../../../providers/providers.dart';
 import '../../../data/models/emergency_request.dart';
-import '../../../data/models/assignment.dart';
 import '../../shared/widgets/shared_widgets.dart';
 import 'package:uuid/uuid.dart';
 
@@ -33,9 +32,35 @@ class _HelpRequestScreenState extends ConsumerState<HelpRequestScreen> {
 
     try {
       final user = ref.read(currentUserProvider)!;
+
+      // Enforce one active request at a time
+      final existing = await ref
+          .read(emergencyRepositoryProvider)
+          .getActiveCivilianRequest(user.id);
+      if (existing != null) {
+        setState(() => _isLoading = false);
+        if (mounted) {
+          ErrorSnackBar.show(
+            context,
+            'You already have an active emergency request. Cancel it first.',
+          );
+        }
+        return;
+      }
+
       final loc = await ref.read(locationServiceProvider).getCurrentLocation();
-      final lat = loc?.latitude ?? 12.9716;
-      final lng = loc?.longitude ?? 77.5946;
+      if (loc == null) {
+        setState(() => _isLoading = false);
+        if (mounted) {
+          ErrorSnackBar.show(
+            context,
+            'Location is required to request help. Please enable location access.',
+          );
+        }
+        return;
+      }
+      final lat = loc.latitude;
+      final lng = loc.longitude;
 
       final request = EmergencyRequest(
         id: const Uuid().v4(),
@@ -54,22 +79,6 @@ class _HelpRequestScreenState extends ConsumerState<HelpRequestScreen> {
 
       final repo = ref.read(emergencyRepositoryProvider);
       await repo.createEmergencyRequest(request);
-
-      // Auto-assign nearest volunteer with matching skill
-      final assignment = Assignment(
-        id: const Uuid().v4(),
-        emergencyRequestId: request.id,
-        volunteerId: 'mock_volunteer_2',
-        volunteerName: 'Kiran Rao',
-        volunteerSkills: [_selectedCategory!.matchingSkill],
-        civilianId: user.id,
-        civilianName: user.name,
-        emergencyLatitude: lat,
-        emergencyLongitude: lng,
-        assignedAt: DateTime.now(),
-        status: AssignmentStatus.pending,
-      );
-      await repo.createAssignment(assignment);
 
       if (!mounted) return;
       setState(() => _isLoading = false);

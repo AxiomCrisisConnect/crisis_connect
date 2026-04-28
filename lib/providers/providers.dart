@@ -4,8 +4,8 @@ import '../data/repositories/auth_repository.dart';
 import '../data/repositories/emergency_repository.dart';
 import '../data/models/user_model.dart';
 import '../data/models/volunteer_profile.dart';
+import '../data/models/emergency_request.dart';
 import '../domain/services/location_service.dart';
-import '../domain/services/notification_service.dart';
 
 // ─── Infra Providers ─────────────────────────────────────────────────────────
 
@@ -22,9 +22,16 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
 });
 
 final emergencyRepositoryProvider = Provider<EmergencyRepository>((ref) {
-  return EmergencyRepository(
-    prefs: ref.watch(sharedPreferencesProvider),
-  );
+  return EmergencyRepository();
+});
+
+/// Fetches the single active/assigned emergency request for a civilian.
+/// Pass the civilianId as the arg. Returns null when no active request exists.
+final activeCivilianRequestProvider =
+    FutureProvider.family<EmergencyRequest?, String>((ref, civilianId) {
+  return ref
+      .read(emergencyRepositoryProvider)
+      .getActiveCivilianRequest(civilianId);
 });
 
 // ─── Service Providers ────────────────────────────────────────────────────────
@@ -33,9 +40,6 @@ final locationServiceProvider = Provider<LocationService>((ref) {
   return LocationService();
 });
 
-final notificationServiceProvider = Provider<NotificationService>((ref) {
-  return NotificationService();
-});
 
 // ─── Auth State ───────────────────────────────────────────────────────────────
 

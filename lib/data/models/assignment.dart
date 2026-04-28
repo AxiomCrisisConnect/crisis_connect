@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 
 enum AssignmentStatus { pending, accepted, declined, resolved, cancelled }
@@ -46,9 +47,9 @@ class Assignment extends Equatable {
       civilianName: map['civilian_name'] as String? ?? 'Civilian',
       emergencyLatitude: (map['emergency_latitude'] as num).toDouble(),
       emergencyLongitude: (map['emergency_longitude'] as num).toDouble(),
-      assignedAt: DateTime.fromMillisecondsSinceEpoch(map['assigned_at'] as int),
+      assignedAt: _parseTimestamp(map['assigned_at']),
       resolvedAt: map['resolved_at'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['resolved_at'] as int)
+          ? _parseTimestamp(map['resolved_at'])
           : null,
       status: AssignmentStatus.values.firstWhere(
         (e) => e.name == map['status'],
@@ -70,8 +71,8 @@ class Assignment extends Equatable {
       'civilian_name': civilianName,
       'emergency_latitude': emergencyLatitude,
       'emergency_longitude': emergencyLongitude,
-      'assigned_at': assignedAt.millisecondsSinceEpoch,
-      'resolved_at': resolvedAt?.millisecondsSinceEpoch,
+      'assigned_at': Timestamp.fromDate(assignedAt),
+      'resolved_at': resolvedAt != null ? Timestamp.fromDate(resolvedAt!) : null,
       'status': status.name,
       'volunteer_rating': volunteerRating,
       'rating_comment': ratingComment,
@@ -121,4 +122,11 @@ class Assignment extends Equatable {
         assignedAt,
         status,
       ];
+}
+
+DateTime _parseTimestamp(dynamic value) {
+  if (value is Timestamp) return value.toDate();
+  if (value is DateTime) return value;
+  if (value is int) return DateTime.fromMillisecondsSinceEpoch(value);
+  return DateTime.fromMillisecondsSinceEpoch(0);
 }

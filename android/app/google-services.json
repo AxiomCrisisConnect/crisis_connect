@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "845941652373-36hep7no0iot427qvu196fv3pncu1b66.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.crisisconnect.crisis_connect",
+            "certificate_hash": "3ba639eb979cf869cd28c1c91d44124a50a92fa7"
+          }
+        },
+        {
           "client_id": "845941652373-i2c4j2n2n1rlu1n9qt1lsbckobc4krm1.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

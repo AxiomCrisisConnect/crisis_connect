@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 
 enum EmergencyType { sos, help }
@@ -80,6 +81,30 @@ class EmergencyRequest extends Equatable {
   });
 
   factory EmergencyRequest.fromMap(Map<String, dynamic> map) {
+    final isNewSchema = map.containsKey('location') || map.containsKey('emergency_id');
+    if (isNewSchema) {
+      final loc = map['location'] as Map<String, dynamic>?;
+      final lat = (loc?['lat'] as num?)?.toDouble() ?? 0.0;
+      final lng = (loc?['lng'] as num?)?.toDouble() ?? 0.0;
+      final type = _parseType(map['type']);
+      final category = _categoryFromSchema(map['category']);
+      return EmergencyRequest(
+        id: (map['emergency_id'] ?? map['id']) as String,
+        type: type,
+        priority: _parsePriority(map['priority']),
+        civilianId: (map['civilian_id'] ?? '') as String,
+        civilianName: (map['civilian_name'] ?? 'Unknown') as String,
+        latitude: lat,
+        longitude: lng,
+        timestamp: _parseTimestamp(map['created_at']),
+        status: _parseStatus(map['status']),
+        helpCategory: type == EmergencyType.help ? category : null,
+        description: (map['description'] as String?)?.trim().isEmpty == true
+            ? null
+            : map['description'] as String?,
+        assignedVolunteerIds: const [],
+      );
+    }
     return EmergencyRequest(
       id: map['id'] as String,
       type: EmergencyType.values.firstWhere(
@@ -94,7 +119,7 @@ class EmergencyRequest extends Equatable {
       civilianName: map['civilian_name'] as String? ?? 'Unknown',
       latitude: (map['latitude'] as num).toDouble(),
       longitude: (map['longitude'] as num).toDouble(),
-      timestamp: DateTime.fromMillisecondsSinceEpoch(map['timestamp'] as int),
+      timestamp: _parseTimestamp(map['timestamp']),
       status: EmergencyStatus.values.firstWhere(
         (e) => e.name == map['status'],
         orElse: () => EmergencyStatus.active,
@@ -113,18 +138,18 @@ class EmergencyRequest extends Equatable {
 
   Map<String, dynamic> toMap() {
     return {
-      'id': id,
-      'type': type.name,
-      'priority': priority.name,
+      'emergency_id': id,
+      'type': type == EmergencyType.sos ? 'SOS' : 'HELP',
+      'priority': priority == EmergencyPriority.high ? 'high' : 'low',
       'civilian_id': civilianId,
-      'civilian_name': civilianName,
-      'latitude': latitude,
-      'longitude': longitude,
-      'timestamp': timestamp.millisecondsSinceEpoch,
-      'status': status.name,
-      'help_category': helpCategory?.name,
-      'description': description,
-      'assigned_volunteer_ids': assignedVolunteerIds,
+      'category': _categoryToSchema(type, helpCategory),
+      'description': description ?? '',
+      'location': {
+        'lat': latitude,
+        'lng': longitude,
+      },
+      'status': _statusToSchema(status),
+      'created_at': Timestamp.fromDate(timestamp),
     };
   }
 
@@ -172,4 +197,63 @@ class EmergencyRequest extends Equatable {
         description,
         assignedVolunteerIds,
       ];
+}
+
+EmergencyType _parseType(dynamic value) {
+  final v = value?.toString().toLowerCase() ?? '';
+  if (v == 'sos') return EmergencyType.sos;
+  if (v == 'help') return EmergencyType.help;
+  return EmergencyType.help;
+}
+
+EmergencyPriority _parsePriority(dynamic value) {
+  final v = value?.toString().toLowerCase() ?? '';
+  return v == 'high' ? EmergencyPriority.high : EmergencyPriority.low;
+}
+
+EmergencyStatus _parseStatus(dynamic value) {
+  final v = value?.toString().toLowerCase() ?? '';
+  return switch (v) {
+    'assigned' => EmergencyStatus.assigned,
+    'resolved' => EmergencyStatus.resolved,
+    'cancelled' => EmergencyStatus.cancelled,
+    _ => EmergencyStatus.active,
+  };
+}
+
+HelpCategory? _categoryFromSchema(dynamic value) {
+  final v = value?.toString().toLowerCase() ?? '';
+  return switch (v) {
+    'medical' => HelpCategory.medical,
+    'food' => HelpCategory.food,
+    'engineering' => HelpCategory.engineering,
+    'other' => HelpCategory.other,
+    _ => HelpCategory.other,
+  };
+}
+
+String _categoryToSchema(EmergencyType type, HelpCategory? category) {
+  if (type == EmergencyType.sos) return 'Other';
+  return switch (category) {
+    HelpCategory.medical => 'Medical',
+    HelpCategory.food => 'Food',
+    HelpCategory.engineering => 'Engineering',
+    _ => 'Other',
+  };
+}
+
+String _statusToSchema(EmergencyStatus status) {
+  return switch (status) {
+    EmergencyStatus.active => 'active',
+    EmergencyStatus.assigned => 'assigned',
+    EmergencyStatus.resolved => 'resolved',
+    EmergencyStatus.cancelled => 'cancelled',
+  };
+}
+
+DateTime _parseTimestamp(dynamic value) {
+  if (value is Timestamp) return value.toDate();
+  if (value is DateTime) return value;
+  if (value is int) return DateTime.fromMillisecondsSinceEpoch(value);
+  return DateTime.fromMillisecondsSinceEpoch(0);
 }

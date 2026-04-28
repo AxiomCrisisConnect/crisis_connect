@@ -112,6 +112,16 @@ class _HelpActiveScreenState extends ConsumerState<HelpActiveScreen> {
               ),
               const SizedBox(height: 20),
 
+              // Location Map
+              if (_request != null)
+                LocationMap(
+                  latitude: _request!.latitude,
+                  longitude: _request!.longitude,
+                  height: 200,
+                  interactive: false,
+                ),
+              const SizedBox(height: 20),
+
               // Assigned volunteer
               if (_assignment != null)
                 GlassCard(

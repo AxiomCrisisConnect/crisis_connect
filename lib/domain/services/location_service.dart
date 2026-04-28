@@ -74,30 +74,19 @@ class LocationService {
     _positionSubscription = null;
   }
 
-  /// Calculate mocked ETA in minutes based on distance
-  int calculateEtaMinutes(double volunteerLat, double volunteerLng,
-      double targetLat, double targetLng) {
-    // Haversine distance in km, assume average speed 40 km/h
-    const r = 6371.0;
-    final dLat = _toRad(targetLat - volunteerLat);
-    final dLng = _toRad(targetLng - volunteerLng);
-    final sinDLat = dLat / 2;
-    final sinDLng = dLng / 2;
-    final a = sinDLat * sinDLat +
-        sinDLng * sinDLng; // simplified; replace with proper haversine
-    final distKm = r * 2 * a.abs(); // rough approximation
-    final etaHours = distKm / 40.0;
-    return (etaHours * 60).ceil().clamp(2, 90);
-  }
-
   double _toRad(double deg) => deg * 3.1415926535 / 180;
 
   /// Check and request background location permission
   Future<bool> requestAlwaysPermission() async {
     var permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.whileInUse) {
+    if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
     }
-    return permission == LocationPermission.always;
+    if (permission == LocationPermission.whileInUse) {
+      // Try to upgrade to always, though on some platforms this requires opening settings
+      // depending on OS version.
+      permission = await Geolocator.requestPermission();
+    }
+    return permission == LocationPermission.always || permission == LocationPermission.whileInUse;
   }
 }
