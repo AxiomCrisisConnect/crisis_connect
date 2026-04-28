@@ -68,17 +68,15 @@ class _OnboardingStep1ScreenState extends ConsumerState<OnboardingStep1Screen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(gradient: AppColors.backgroundGradient),
-        child: SafeArea(
-          child: Column(
-            children: [
-              _buildHeader(context),
-              Expanded(
-                child: ListView(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 24, vertical: 8),
-                  children: [
+      body: AppBackground(
+        child: Column(
+          children: [
+            _buildHeader(context),
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 24, vertical: 8),
+                children: [
                     ...SkillCategory.categories.entries.map((entry) {
                       final cat = entry.key;
                       final subs = entry.value;
@@ -190,20 +188,19 @@ class _OnboardingStep1ScreenState extends ConsumerState<OnboardingStep1Screen> {
                   ],
                 ),
               ),
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                child: PrimaryButton(
-                  label: 'Continue',
-                  icon: Icons.arrow_forward_rounded,
-                  onPressed: _isValid
-                      ? () => context.push(AppRoutes.onboardingStep2,
-                          extra: _flatSkills)
-                      : null,
-                ),
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              child: PrimaryButton(
+                label: 'Continue',
+                icon: Icons.arrow_forward_rounded,
+                onPressed: _isValid
+                    ? () => context.push(AppRoutes.onboardingStep2,
+                        extra: _flatSkills)
+                    : null,
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

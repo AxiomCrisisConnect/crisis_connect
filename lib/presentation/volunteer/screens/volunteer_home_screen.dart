@@ -98,27 +98,33 @@ class _VolunteerHomeScreenState extends ConsumerState<VolunteerHomeScreen> {
     final isAvailable = ref.watch(availabilityProvider);
 
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(gradient: AppColors.backgroundGradient),
-        child: SafeArea(
-          child: IndexedStack(
-            index: _currentTab,
-            children: [
-              _buildMainTab(context, user?.name ?? 'Volunteer', profile, isAvailable),
-              const AssignmentHistoryTab(),
-              _buildProfileTab(context, user?.name ?? '', profile),
-            ],
-          ),
+      body: AppBackground(
+        child: IndexedStack(
+          index: _currentTab,
+          children: [
+            _buildMainTab(context, user?.name ?? 'Volunteer', profile, isAvailable),
+            const AssignmentHistoryTab(),
+            _buildProfileTab(context, user?.name ?? '', profile),
+          ],
         ),
       ),
       bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: AppColors.surface,
-          border: Border(top: BorderSide(color: AppColors.border, width: 1)),
+          border: const Border(top: BorderSide(color: AppColors.border, width: 1)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.4),
+              blurRadius: 20,
+              offset: const Offset(0, -4),
+            ),
+          ],
         ),
         child: BottomNavigationBar(
           currentIndex: _currentTab,
           onTap: (i) => setState(() => _currentTab = i),
+          selectedFontSize: 11,
+          unselectedFontSize: 11,
           items: const [
             BottomNavigationBarItem(
                 icon: Icon(Icons.home_rounded), label: 'Home'),
@@ -136,46 +142,95 @@ class _VolunteerHomeScreenState extends ConsumerState<VolunteerHomeScreen> {
       VolunteerProfile? profile, bool isAvailable) {
     return RefreshIndicator(
       color: AppColors.accent,
+      backgroundColor: AppColors.surface,
       onRefresh: _loadActiveAssignment,
       child: ListView(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
         children: [
-          // Header
+          // ── Premium Header ──
           Row(
             children: [
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    StatusBadge(
+                      label: isAvailable ? '● AVAILABLE' : '○ OFFLINE',
+                      color: isAvailable ? AppColors.success : AppColors.textHint,
+                      pulsing: isAvailable,
+                    ),
+                    const SizedBox(height: 10),
                     Text('Welcome back,',
                         style: Theme.of(context).textTheme.bodyMedium),
-                    Text(name,
+                    Text(name.split(' ').first,
                         style: Theme.of(context).textTheme.displayMedium),
+                    const SizedBox(height: 4),
+                    Text(
+                      isAvailable
+                          ? 'You are live and visible to nearby civilians.'
+                          : 'Go online to receive emergency assignments.',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
                   ],
                 ),
               ),
+              const SizedBox(width: 12),
               Container(
-                width: 46,
-                height: 46,
+                width: 52,
+                height: 52,
                 decoration: BoxDecoration(
-                  gradient: AppColors.primaryGradient,
-                  borderRadius: BorderRadius.circular(14),
+                  gradient: AppColors.accentGradient,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.accent.withValues(alpha: 0.4),
+                      blurRadius: 20,
+                      spreadRadius: 2,
+                    ),
+                  ],
                 ),
                 child: const Icon(Icons.crisis_alert_rounded,
-                    color: Colors.white, size: 24),
+                    color: Colors.white, size: 26),
               ),
             ],
           ),
           const SizedBox(height: 24),
 
-          // Availability toggle
-          GlassCard(
-            borderColor: isAvailable ? AppColors.success : AppColors.border,
+          // ── Availability Toggle ──
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: isAvailable
+                    ? [AppColors.success.withValues(alpha: 0.15), AppColors.success.withValues(alpha: 0.04)]
+                    : [AppColors.surfaceVariant, AppColors.cardColor],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: isAvailable
+                    ? AppColors.success.withValues(alpha: 0.5)
+                    : AppColors.border,
+                width: 1.5,
+              ),
+              boxShadow: isAvailable
+                  ? [
+                      BoxShadow(
+                        color: AppColors.success.withValues(alpha: 0.2),
+                        blurRadius: 24,
+                        spreadRadius: 0,
+                      )
+                    ]
+                  : null,
+            ),
             child: Row(
               children: [
                 Container(
-                  width: 52,
-                  height: 52,
+                  width: 48,
+                  height: 48,
                   decoration: BoxDecoration(
                     color: (isAvailable ? AppColors.success : AppColors.textHint)
                         .withValues(alpha: 0.15),
@@ -183,29 +238,30 @@ class _VolunteerHomeScreenState extends ConsumerState<VolunteerHomeScreen> {
                   ),
                   child: Icon(
                     isAvailable
-                        ? Icons.location_on_rounded
-                        : Icons.location_off_rounded,
+                        ? Icons.wifi_tethering_rounded
+                        : Icons.wifi_tethering_off_rounded,
                     color: isAvailable ? AppColors.success : AppColors.textHint,
-                    size: 28,
+                    size: 26,
                   ),
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: 14),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        isAvailable ? 'I am Available' : 'I am Unavailable',
+                        isAvailable ? 'Online & Accepting' : 'Offline',
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                               color: isAvailable
                                   ? AppColors.successLight
-                                  : AppColors.textHint,
+                                  : AppColors.textSecondary,
                             ),
                       ),
+                      const SizedBox(height: 2),
                       Text(
                         isAvailable
-                            ? 'Location tracking active (every 3 min)'
-                            : 'Toggle to receive emergency assignments',
+                            ? 'Location tracking active'
+                            : 'Toggle to receive assignments',
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],
@@ -219,7 +275,6 @@ class _VolunteerHomeScreenState extends ConsumerState<VolunteerHomeScreen> {
                           .read(availabilityProvider.notifier)
                           .toggle(profile);
                       if (!isAvailable) {
-                        // Request background location permission when enabling
                         await ref
                             .read(locationServiceProvider)
                             .requestAlwaysPermission();
@@ -232,9 +287,12 @@ class _VolunteerHomeScreenState extends ConsumerState<VolunteerHomeScreen> {
           ),
           const SizedBox(height: 20),
 
-          // Active assignment
+          // ── Active Assignment ──
           if (_loadingAssignment)
-            const Center(child: CircularProgressIndicator(color: AppColors.accent))
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 24),
+              child: Center(child: CircularProgressIndicator(color: AppColors.accent)),
+            )
           else if (_activeAssignment != null)
             _ActiveAssignmentCard(
               assignment: _activeAssignment!,
@@ -246,37 +304,62 @@ class _VolunteerHomeScreenState extends ConsumerState<VolunteerHomeScreen> {
             GlassCard(
               child: Column(
                 children: [
-                  const Icon(Icons.check_circle_outline_rounded,
-                      color: AppColors.success, size: 48),
-                  const SizedBox(height: 12),
+                  Container(
+                    width: 56,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: AppColors.success.withValues(alpha: 0.12),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.radar_rounded,
+                        color: AppColors.success, size: 28),
+                  ),
+                  const SizedBox(height: 14),
                   Text('No Active Assignments',
                       style: Theme.of(context).textTheme.headlineMedium),
                   const SizedBox(height: 6),
                   Text(
                     isAvailable
                         ? 'You\'ll be notified when help is needed nearby'
-                        : 'Mark yourself as available to receive assignments',
+                        : 'Go online to start receiving emergency requests',
                     style: Theme.of(context).textTheme.bodySmall,
                     textAlign: TextAlign.center,
                   ),
                 ],
               ),
             ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
 
-          // Skills summary
+          // ── Skills ──
           if (profile != null && profile.skills.isNotEmpty) ...[
-            Text('Your Skills',
-                style: Theme.of(context).textTheme.headlineMedium),
+            Row(
+              children: [
+                const Icon(Icons.verified_rounded, size: 16, color: AppColors.accent),
+                const SizedBox(width: 8),
+                Text('Your Skills',
+                    style: Theme.of(context).textTheme.headlineSmall),
+              ],
+            ),
             const SizedBox(height: 12),
             Wrap(
               spacing: 8,
               runSpacing: 8,
               children: profile.skills
-                  .map((s) => Chip(
-                        label: Text(s.replaceAll(':', ' › ')),
-                        avatar: const Icon(Icons.star_rounded,
-                            size: 14, color: AppColors.accent),
+                  .map((s) => Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: AppColors.primary.withValues(alpha: 0.3),
+                          ),
+                        ),
+                        child: Text(
+                          s.replaceAll(':', ' · '),
+                          style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                                color: AppColors.accentLight,
+                              ),
+                        ),
                       ))
                   .toList(),
             ),
@@ -291,7 +374,10 @@ class _VolunteerHomeScreenState extends ConsumerState<VolunteerHomeScreen> {
     return ListView(
       padding: const EdgeInsets.all(24),
       children: [
-        Text('Profile', style: Theme.of(context).textTheme.displayMedium),
+        AppHeader(
+          title: 'Profile',
+          subtitle: 'Volunteer details and verification',
+        ),
         const SizedBox(height: 20),
         GlassCard(
           child: Column(
@@ -309,18 +395,7 @@ class _VolunteerHomeScreenState extends ConsumerState<VolunteerHomeScreen> {
               const SizedBox(height: 16),
               Text(name, style: Theme.of(context).textTheme.headlineLarge),
               const SizedBox(height: 4),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppColors.primaryLight.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: const Text('Volunteer',
-                    style: TextStyle(
-                        color: AppColors.accent,
-                        fontWeight: FontWeight.w600)),
-              ),
+              const StatusBadge(label: 'Volunteer', color: AppColors.accent),
               if (profile != null) ...[
                 const SizedBox(height: 12),
                 Text(profile.experienceLevelLabel,

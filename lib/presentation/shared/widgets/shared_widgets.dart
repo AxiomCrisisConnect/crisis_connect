@@ -4,6 +4,131 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_theme.dart';
 export 'location_map.dart';
 
+class AppBackground extends StatelessWidget {
+  final Widget child;
+  final bool useSafeArea;
+  final EdgeInsetsGeometry? padding;
+
+  const AppBackground({
+    super.key,
+    required this.child,
+    this.useSafeArea = true,
+    this.padding,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final content = Padding(
+      padding: padding ?? EdgeInsets.zero,
+      child: child,
+    );
+
+    return Stack(
+      children: [
+        // Base deep-space background
+        Container(
+          decoration: const BoxDecoration(gradient: AppColors.backgroundGradient),
+        ),
+        // Top-left dramatic blue nebula
+        Positioned(
+          top: -160,
+          left: -100,
+          child: _AmbientOrb(color: AppColors.primary.withValues(alpha: 0.22), size: 340),
+        ),
+        // Top-right cyan accent
+        Positioned(
+          right: -80,
+          top: 80,
+          child: _AmbientOrb(color: AppColors.accent.withValues(alpha: 0.12), size: 260),
+        ),
+        // Bottom amber warmth
+        Positioned(
+          bottom: -200,
+          left: -60,
+          child: _AmbientOrb(color: AppColors.help.withValues(alpha: 0.08), size: 300),
+        ),
+        // Center subtle glow
+        Positioned(
+          top: 300,
+          right: -120,
+          child: _AmbientOrb(color: AppColors.primary.withValues(alpha: 0.07), size: 280),
+        ),
+        if (useSafeArea) SafeArea(child: content) else content,
+      ],
+    );
+  }
+}
+
+class _AmbientOrb extends StatelessWidget {
+  final Color color;
+  final double size;
+
+  const _AmbientOrb({required this.color, required this.size});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: RadialGradient(
+          colors: [color, color.withValues(alpha: 0.0)],
+          stops: const [0.0, 1.0],
+        ),
+      ),
+    );
+  }
+}
+
+class AppHeader extends StatelessWidget {
+  final String title;
+  final String? subtitle;
+  final Widget? trailing;
+  final bool showBack;
+  final VoidCallback? onBack;
+
+  const AppHeader({
+    super.key,
+    required this.title,
+    this.subtitle,
+    this.trailing,
+    this.showBack = false,
+    this.onBack,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (showBack)
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                  color: AppColors.textPrimary),
+              onPressed: onBack,
+            ),
+          ),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title, style: Theme.of(context).textTheme.displayMedium),
+              if (subtitle != null) ...[
+                const SizedBox(height: 6),
+                Text(subtitle!, style: Theme.of(context).textTheme.bodyMedium),
+              ],
+            ],
+          ),
+        ),
+        if (trailing != null) trailing!,
+      ],
+    );
+  }
+}
+
 // ─── Glassmorphism Card ───────────────────────────────────────────────────────
 
 class GlassCard extends StatelessWidget {
@@ -26,24 +151,19 @@ class GlassCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(borderRadius),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-        child: Container(
-          padding: padding ?? const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            gradient: gradient ?? AppColors.cardGradient,
-            borderRadius: BorderRadius.circular(borderRadius),
-            border: Border.all(
-              color: borderColor ?? AppColors.border.withValues(alpha: 0.8),
-              width: 1.5,
-            ),
-            boxShadow: shadows ?? AppColors.cardShadow(),
-          ),
-          child: child,
+    return Container(
+      padding: padding ?? const EdgeInsets.all(20),
+      // Only keep the visual card decoration, drop the BackdropFilter to prevent black screen bugs
+      decoration: BoxDecoration(
+        gradient: gradient ?? AppColors.cardGradient,
+        borderRadius: BorderRadius.circular(borderRadius),
+        border: Border.all(
+          color: borderColor ?? AppColors.border.withValues(alpha: 0.9),
+          width: 1.2,
         ),
+        boxShadow: shadows ?? AppColors.cardShadow(),
       ),
+      child: child,
     );
   }
 }
@@ -77,14 +197,19 @@ class GlowContainer extends StatelessWidget {
         color: solidColor,
         borderRadius: BorderRadius.circular(borderRadius),
         border: Border.all(
-          color: glowColor.withValues(alpha: 0.3),
+          color: glowColor.withValues(alpha: 0.4),
           width: 1.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: glowColor.withValues(alpha: 0.2),
-            blurRadius: 16,
-            spreadRadius: 1,
+            color: glowColor.withValues(alpha: 0.3),
+            blurRadius: 24,
+            spreadRadius: 0,
+          ),
+          BoxShadow(
+            color: glowColor.withValues(alpha: 0.1),
+            blurRadius: 48,
+            spreadRadius: 4,
           ),
         ],
       ),
@@ -143,7 +268,12 @@ class _PrimaryButtonState extends State<PrimaryButton>
 
   @override
   Widget build(BuildContext context) {
-    final gradient = widget.gradient ?? AppColors.primaryGradient;
+    final baseColor = widget.color ?? AppColors.primaryLight;
+    final gradient = widget.gradient ?? LinearGradient(
+      colors: [baseColor, Color.lerp(baseColor, Colors.black, 0.25)!],
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+    );
     final isDisabled = widget.onPressed == null || widget.isLoading;
 
     return GestureDetector(
@@ -195,7 +325,7 @@ class _PrimaryButtonState extends State<PrimaryButton>
                       ],
                       Text(
                         widget.label,
-                        style: GoogleFonts.dmSans(
+                        style: GoogleFonts.splineSans(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
                           color: isDisabled
@@ -297,7 +427,7 @@ class _OutlineAccentButtonState extends State<OutlineAccentButton>
               ],
               Text(
                 widget.label,
-                style: GoogleFonts.dmSans(
+                style: GoogleFonts.splineSans(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
                   color: widget.accentColor,
@@ -376,9 +506,9 @@ class ErrorSnackBar {
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: Text(message,
-                  style: GoogleFonts.dmSans(
-                      fontSize: 13, color: AppColors.textPrimary)),
+                  child: Text(message,
+                      style: GoogleFonts.splineSans(
+                          fontSize: 13, color: AppColors.textPrimary)),
             ),
           ],
         ),
@@ -409,9 +539,9 @@ class ErrorSnackBar {
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: Text(message,
-                  style: GoogleFonts.dmSans(
-                      fontSize: 13, color: AppColors.textPrimary)),
+                child: Text(message,
+                  style: GoogleFonts.splineSans(
+                    fontSize: 13, color: AppColors.textPrimary)),
             ),
           ],
         ),
@@ -551,7 +681,7 @@ class StatusBadge extends StatelessWidget {
           ],
           Text(
             label,
-            style: GoogleFonts.dmSans(
+            style: GoogleFonts.splineSans(
               fontSize: 11,
               fontWeight: FontWeight.w700,
               color: color,

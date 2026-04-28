@@ -235,13 +235,22 @@ class _CivilianHomeScreenState extends ConsumerState<CivilianHomeScreen>
         ),
       ),
       bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: AppColors.surface,
-          border: Border(top: BorderSide(color: AppColors.border)),
+          border: const Border(top: BorderSide(color: AppColors.border)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.4),
+              blurRadius: 20,
+              offset: const Offset(0, -4),
+            ),
+          ],
         ),
         child: BottomNavigationBar(
           currentIndex: _currentTab,
           onTap: (i) => setState(() => _currentTab = i),
+          selectedFontSize: 11,
+          unselectedFontSize: 11,
           items: const [
             BottomNavigationBarItem(
                 icon: Icon(Icons.home_rounded), label: 'Home'),
@@ -258,9 +267,10 @@ class _CivilianHomeScreenState extends ConsumerState<CivilianHomeScreen>
   Widget _buildHomeTab(BuildContext context, String name) {
     return RefreshIndicator(
       color: AppColors.accent,
+      backgroundColor: AppColors.surface,
       onRefresh: _loadActiveRequest,
       child: ListView(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 40),
         children: [
           // Header
           Row(
@@ -269,41 +279,77 @@ class _CivilianHomeScreenState extends ConsumerState<CivilianHomeScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: 7,
+                          height: 7,
+                          decoration: const BoxDecoration(
+                            color: AppColors.success,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Text('SECURED',
+                            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                                  color: AppColors.success,
+                                  letterSpacing: 1.2,
+                                )),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
                     Text('Hello,',
                         style: Theme.of(context).textTheme.bodyMedium),
-                    Text(name,
+                    Text(name.split(' ').first,
                         style: Theme.of(context).textTheme.displayMedium),
                   ],
                 ),
               ),
               Container(
-                width: 46,
-                height: 46,
+                width: 50,
+                height: 50,
                 decoration: BoxDecoration(
-                  gradient: AppColors.primaryGradient,
-                  borderRadius: BorderRadius.circular(14),
+                  gradient: AppColors.accentGradient,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.accent.withValues(alpha: 0.4),
+                      blurRadius: 20,
+                      spreadRadius: 2,
+                    ),
+                  ],
                 ),
                 child: const Icon(Icons.crisis_alert_rounded,
-                    color: Colors.white, size: 24),
+                    color: Colors.white, size: 26),
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 14),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
-              color: AppColors.surfaceVariant,
+              gradient: LinearGradient(
+                colors: [
+                  AppColors.accent.withValues(alpha: 0.08),
+                  AppColors.primary.withValues(alpha: 0.05),
+                ],
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+              ),
               borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.accent.withValues(alpha: 0.2)),
             ),
             child: Row(
               children: [
-                const Icon(Icons.security_rounded,
+                const Icon(Icons.shield_rounded,
                     color: AppColors.accent, size: 16),
-                const SizedBox(width: 8),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     'Emergency services are monitoring your area.',
-                    style: Theme.of(context).textTheme.bodySmall,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
                   ),
                 ),
               ],

@@ -13,9 +13,7 @@ class AssignmentHistoryScreen extends ConsumerWidget {
     final user = ref.watch(currentUserProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Assignment History')),
-      body: Container(
-        decoration: const BoxDecoration(gradient: AppColors.backgroundGradient),
+      body: AppBackground(
         child: FutureBuilder<List<Assignment>>(
           future: user != null
               ? ref.read(emergencyRepositoryProvider).getAssignmentsForVolunteer(user.id)
@@ -26,25 +24,44 @@ class AssignmentHistoryScreen extends ConsumerWidget {
             }
             final assignments = snap.data ?? [];
             if (assignments.isEmpty) {
-              return Center(
-                child: GlassCard(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.history_rounded,
-                          size: 48, color: AppColors.textHint),
-                      const SizedBox(height: 12),
-                      Text('No assignments yet',
-                          style: Theme.of(context).textTheme.headlineMedium),
-                    ],
+              return ListView(
+                padding: const EdgeInsets.all(24),
+                children: [
+                  const AppHeader(
+                    title: 'Assignment History',
+                    subtitle: 'Resolved and declined requests',
                   ),
-                ),
+                  const SizedBox(height: 16),
+                  GlassCard(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.history_rounded,
+                            size: 48, color: AppColors.textHint),
+                        const SizedBox(height: 12),
+                        Text('No assignments yet',
+                            style: Theme.of(context).textTheme.headlineMedium),
+                      ],
+                    ),
+                  ),
+                ],
               );
             }
             return ListView.builder(
               padding: const EdgeInsets.all(24),
-              itemCount: assignments.length,
-              itemBuilder: (_, i) => _AssignmentCard(assignment: assignments[i]),
+              itemCount: assignments.length + 1,
+              itemBuilder: (_, i) {
+                if (i == 0) {
+                  return const Padding(
+                    padding: EdgeInsets.only(bottom: 16),
+                    child: AppHeader(
+                      title: 'Assignment History',
+                      subtitle: 'Resolved and declined requests',
+                    ),
+                  );
+                }
+                return _AssignmentCard(assignment: assignments[i - 1]);
+              },
             );
           },
         ),

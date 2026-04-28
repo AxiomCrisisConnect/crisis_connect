@@ -58,25 +58,17 @@ class _HelpActiveScreenState extends ConsumerState<HelpActiveScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(gradient: AppColors.backgroundGradient),
-        child: SafeArea(
-          child: ListView(
-            padding: const EdgeInsets.all(24),
-            children: [
-              // Header
-              Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                        color: AppColors.textPrimary),
-                    onPressed: () => context.pop(),
-                  ),
-                  Text('Help Request',
-                      style: Theme.of(context).textTheme.headlineLarge),
-                ],
-              ),
-              const SizedBox(height: 20),
+      body: AppBackground(
+        child: ListView(
+          padding: const EdgeInsets.all(24),
+          children: [
+            AppHeader(
+              title: 'Help Request',
+              subtitle: 'We are matching your request with a volunteer.',
+              showBack: true,
+              onBack: () => context.pop(),
+            ),
+            const SizedBox(height: 20),
 
               // Confirmation card
               GlassCard(
@@ -221,8 +213,7 @@ class _HelpActiveScreenState extends ConsumerState<HelpActiveScreen> {
                   ),
                 ),
               ],
-            ],
-          ),
+          ],
         ),
       ),
     );

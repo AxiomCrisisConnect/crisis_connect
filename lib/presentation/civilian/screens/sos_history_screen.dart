@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/theme/app_theme.dart';
+import '../../shared/widgets/shared_widgets.dart';
 import 'civilian_home_screen.dart';
 
 class SOSHistoryScreen extends ConsumerWidget {
@@ -9,9 +9,7 @@ class SOSHistoryScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Request History')),
-      body: Container(
-        decoration: const BoxDecoration(gradient: AppColors.backgroundGradient),
+      body: AppBackground(
         child: const SOSHistoryTab(),
       ),
     );

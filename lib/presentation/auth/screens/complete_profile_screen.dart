@@ -82,130 +82,117 @@ class _CompleteProfileScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(gradient: AppColors.backgroundGradient),
-        child: SafeArea(
-          child: LoadingOverlay(
-            isLoading: _isLoading,
-            child: ListView(
-              padding: const EdgeInsets.all(24),
-              children: [
-                const SizedBox(height: 12),
-                // Google account indicator
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: AppColors.surfaceVariant,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: AppColors.border),
-                  ),
-                  child: Row(
-                    children: [
-                      const Text('G',
-                          style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w800,
-                              color: Color(0xFF4285F4))),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text('Signed in with Google',
-                                style: TextStyle(
-                                    color: AppColors.textPrimary,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 13)),
-                            Text(widget.email,
-                                style: const TextStyle(
-                                    color: AppColors.textSecondary,
-                                    fontSize: 12)),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                Text('Complete your profile',
-                    style: Theme.of(context).textTheme.displayMedium),
-                const SizedBox(height: 6),
-                Text('Just a few details before you start',
-                    style: Theme.of(context).textTheme.bodyMedium),
-                const SizedBox(height: 28),
-
-                Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      // Full name
-                      _Field(
-                        controller: _nameCtrl,
-                        label: 'Full Name',
-                        icon: Icons.person_outline_rounded,
-                        textCapitalization: TextCapitalization.words,
-                        validator: (v) {
-                          if (v == null || v.trim().isEmpty) {
-                            return 'Name is required';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 14),
-
-                      // Phone (optional)
-                      _Field(
-                        controller: _phoneCtrl,
-                        label: 'Phone Number (optional)',
-                        icon: Icons.phone_outlined,
-                        keyboardType: TextInputType.phone,
-                      ),
-                      const SizedBox(height: 28),
-
-                      // Role selector
-                      Text('I am a…',
-                          style: Theme.of(context).textTheme.titleMedium),
-                      const SizedBox(height: 12),
-                      Row(
+      body: AppBackground(
+        child: LoadingOverlay(
+          isLoading: _isLoading,
+          child: ListView(
+            padding: const EdgeInsets.all(24),
+            children: [
+              const SizedBox(height: 8),
+              AppHeader(
+                title: 'Complete your profile',
+                subtitle: 'Just a few details before you start',
+              ),
+              const SizedBox(height: 20),
+              GlassCard(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                child: Row(
+                  children: [
+                    const Text('G',
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF4285F4))),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Expanded(
-                            child: _RoleCard(
-                              icon: Icons.volunteer_activism_rounded,
-                              label: 'Volunteer',
-                              subtitle: 'Respond to\nemergencies',
-                              selected: _selectedRole == UserRole.volunteer,
-                              onTap: () => setState(
-                                  () => _selectedRole = UserRole.volunteer),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: _RoleCard(
-                              icon: Icons.people_rounded,
-                              label: 'Civilian',
-                              subtitle: 'Request help\nwhen in need',
-                              selected: _selectedRole == UserRole.civilian,
-                              onTap: () => setState(
-                                  () => _selectedRole = UserRole.civilian),
-                            ),
-                          ),
+                          Text('Signed in with Google',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium),
+                          Text(widget.email,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall),
                         ],
                       ),
-                      const SizedBox(height: 32),
-
-                      PrimaryButton(
-                        label: 'Get Started',
-                        icon: Icons.arrow_forward_rounded,
-                        onPressed: _submit,
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 24),
+              Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Full name
+                    _Field(
+                      controller: _nameCtrl,
+                      label: 'Full Name',
+                      icon: Icons.person_outline_rounded,
+                      textCapitalization: TextCapitalization.words,
+                      validator: (v) {
+                        if (v == null || v.trim().isEmpty) {
+                          return 'Name is required';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 14),
+
+                    // Phone (optional)
+                    _Field(
+                      controller: _phoneCtrl,
+                      label: 'Phone Number (optional)',
+                      icon: Icons.phone_outlined,
+                      keyboardType: TextInputType.phone,
+                    ),
+                    const SizedBox(height: 28),
+
+                    // Role selector
+                    Text('I am a…',
+                        style: Theme.of(context).textTheme.titleMedium),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _RoleCard(
+                            icon: Icons.volunteer_activism_rounded,
+                            label: 'Volunteer',
+                            subtitle: 'Respond to\nemergencies',
+                            selected: _selectedRole == UserRole.volunteer,
+                            onTap: () => setState(
+                                () => _selectedRole = UserRole.volunteer),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _RoleCard(
+                            icon: Icons.people_rounded,
+                            label: 'Civilian',
+                            subtitle: 'Request help\nwhen in need',
+                            selected: _selectedRole == UserRole.civilian,
+                            onTap: () => setState(
+                                () => _selectedRole = UserRole.civilian),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 32),
+
+                    PrimaryButton(
+                      label: 'Get Started',
+                      icon: Icons.arrow_forward_rounded,
+                      onPressed: _submit,
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
       ),

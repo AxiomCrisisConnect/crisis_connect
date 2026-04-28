@@ -16,22 +16,14 @@ class LiveTrackingScreen extends ConsumerStatefulWidget {
   ConsumerState<LiveTrackingScreen> createState() => _LiveTrackingScreenState();
 }
 
-class _LiveTrackingScreenState extends ConsumerState<LiveTrackingScreen>
-    with SingleTickerProviderStateMixin {
+class _LiveTrackingScreenState extends ConsumerState<LiveTrackingScreen> {
   EmergencyRequest? _request;
   Assignment? _assignment;
   bool _loading = true;
-  late AnimationController _flashCtrl;
-  late Animation<double> _pulseAnim;
 
   @override
   void initState() {
     super.initState();
-    _flashCtrl = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 800))
-      ..repeat(reverse: true);
-    _pulseAnim = Tween<double>(begin: 0.3, end: 1.0)
-        .animate(CurvedAnimation(parent: _flashCtrl, curve: Curves.easeInOut));
     _loadData();
   }
 
@@ -98,12 +90,6 @@ class _LiveTrackingScreenState extends ConsumerState<LiveTrackingScreen>
   }
 
   @override
-  void dispose() {
-    _flashCtrl.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     if (_loading) {
       return const Scaffold(
@@ -167,34 +153,10 @@ class _LiveTrackingScreenState extends ConsumerState<LiveTrackingScreen>
                       child: const Icon(Icons.arrow_back_ios_new_rounded, color: AppColors.textSecondary, size: 16),
                     ),
                     const SizedBox(width: 8),
-                    GlassCard(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      borderColor: accentColor,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          AnimatedBuilder(
-                            animation: _pulseAnim,
-                            builder: (_, child) => Container(
-                              width: 7,
-                              height: 7,
-                              decoration: BoxDecoration(
-                                color: accentColor.withValues(alpha: _pulseAnim.value),
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Text(
-                            isSOS ? 'SOS ACTIVE' : 'HELP REQUEST ACTIVE',
-                            style: TextStyle(
-                                color: accentLight,
-                                fontWeight: FontWeight.w800,
-                                fontSize: 13,
-                                letterSpacing: 1),
-                          ),
-                        ],
-                      ),
+                    StatusBadge(
+                      label: isSOS ? 'SOS ACTIVE' : 'HELP REQUEST ACTIVE',
+                      color: accentColor,
+                      pulsing: true,
                     ),
                   ],
                 ),

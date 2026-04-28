@@ -114,136 +114,87 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          // Ambient background
-          Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFF020510), Color(0xFF050C1A), Color(0xFF030814)],
-                stops: [0.0, 0.6, 1.0],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-            ),
-          ),
-          // Ambient top-left glow orb
-          Positioned(
-            top: -80,
-            left: -60,
-            child: Container(
-              width: 280,
-              height: 280,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.primary.withValues(alpha: 0.10),
-              ),
-            ),
-          ),
-          // Ambient bottom-right glow orb
-          Positioned(
-            bottom: -60,
-            right: -40,
-            child: Container(
-              width: 220,
-              height: 220,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.accent.withValues(alpha: 0.05),
-              ),
-            ),
-          ),
-          // Main content
-          SafeArea(
-            child: LoadingOverlay(
-              isLoading: _isLoading,
-              child: Column(
-                children: [
-                  // ── Branding ──────────────────────────────────────────
-                  const SizedBox(height: 28),
-                  FadeSlideIn(child: _Logo()),
-                  const SizedBox(height: 28),
-
-                  // ── Tab bar ───────────────────────────────────────────
-                  FadeSlideIn(
-                    delay: const Duration(milliseconds: 150),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: AppColors.surfaceVariant,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                              color: AppColors.border, width: 1.5),
-                        ),
-                        child: TabBar(
-                          controller: _tabCtrl,
-                          indicator: BoxDecoration(
-                            gradient: AppColors.accentGradient,
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: AppColors.glowAccent(
-                                intensity: 0.3, blur: 12),
-                          ),
-                          indicatorSize: TabBarIndicatorSize.tab,
-                          dividerColor: Colors.transparent,
-                          labelColor: Colors.white,
-                          unselectedLabelColor: AppColors.textSecondary,
-                          // Visible cyan ripple on tap
-                          overlayColor: WidgetStateProperty.resolveWith((states) {
-                            if (states.contains(WidgetState.pressed)) {
-                              return AppColors.accent.withValues(alpha: 0.15);
-                            }
-                            if (states.contains(WidgetState.hovered)) {
-                              return AppColors.accent.withValues(alpha: 0.08);
-                            }
-                            return Colors.transparent;
-                          }),
-                          splashBorderRadius: BorderRadius.circular(12),
-                          labelStyle: GoogleFonts.dmSans(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 14,
-                            letterSpacing: 0.3,
-                          ),
-                          unselectedLabelStyle: GoogleFonts.dmSans(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 14,
-                          ),
-                          tabs: const [
-                            Tab(text: 'Sign In'),
-                            Tab(text: 'Sign Up'),
-                          ],
-                        ),
-                      ),
+      body: AppBackground(
+        child: LoadingOverlay(
+          isLoading: _isLoading,
+          child: Column(
+            children: [
+              const SizedBox(height: 28),
+              FadeSlideIn(child: _Logo()),
+              const SizedBox(height: 28),
+              FadeSlideIn(
+                delay: const Duration(milliseconds: 150),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: AppColors.surfaceVariant,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppColors.border, width: 1.2),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-
-                  // ── Tab contents ──────────────────────────────────────
-                  Expanded(
-                    child: TabBarView(
+                    child: TabBar(
                       controller: _tabCtrl,
-                      children: [
-                        _SignInForm(
-                          onGoogleTap: _handleGoogleSignIn,
-                          onSuccess: _routeAfterAuth,
-                          setLoading: _setLoading,
-                          friendlyError: _friendlyError,
-                        ),
-                        _SignUpForm(
-                          onGoogleTap: _handleGoogleSignIn,
-                          onSuccess: _routeAfterAuth,
-                          setLoading: _setLoading,
-                          friendlyError: _friendlyError,
-                        ),
+                      indicator: BoxDecoration(
+                        gradient: AppColors.accentGradient,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: AppColors.glowAccent(
+                            intensity: 0.25, blur: 12),
+                      ),
+                      indicatorSize: TabBarIndicatorSize.tab,
+                      dividerColor: Colors.transparent,
+                      labelColor: AppColors.background,
+                      unselectedLabelColor: AppColors.textSecondary,
+                      overlayColor: WidgetStateProperty.resolveWith((states) {
+                        if (states.contains(WidgetState.pressed)) {
+                          return AppColors.accent.withValues(alpha: 0.15);
+                        }
+                        if (states.contains(WidgetState.hovered)) {
+                          return AppColors.accent.withValues(alpha: 0.08);
+                        }
+                        return Colors.transparent;
+                      }),
+                      splashBorderRadius: BorderRadius.circular(12),
+                      labelStyle: GoogleFonts.splineSans(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 14,
+                        letterSpacing: 0.3,
+                      ),
+                      unselectedLabelStyle: GoogleFonts.splineSans(
+                        fontWeight: FontWeight.w500,
+                        fontSize: 14,
+                      ),
+                      tabs: const [
+                        Tab(text: 'Sign In'),
+                        Tab(text: 'Sign Up'),
                       ],
                     ),
                   ),
-                ],
+                ),
               ),
-            ),
+              const SizedBox(height: 8),
+              Expanded(
+                child: TabBarView(
+                  controller: _tabCtrl,
+                  children: [
+                    _SignInForm(
+                      onGoogleTap: _handleGoogleSignIn,
+                      onSuccess: _routeAfterAuth,
+                      setLoading: _setLoading,
+                      friendlyError: _friendlyError,
+                    ),
+                    _SignUpForm(
+                      onGoogleTap: _handleGoogleSignIn,
+                      onSuccess: _routeAfterAuth,
+                      setLoading: _setLoading,
+                      friendlyError: _friendlyError,
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -298,22 +249,22 @@ class _Logo extends StatelessWidget {
           shaderCallback: (bounds) =>
               AppColors.accentGradient.createShader(bounds),
           child: Text(
-            'CRISISCONNECT',
-            style: GoogleFonts.rajdhani(
+            'CRISIS CONNECT',
+            style: GoogleFonts.spaceGrotesk(
               fontSize: 28,
               fontWeight: FontWeight.w700,
               color: Colors.white,
-              letterSpacing: 3,
+              letterSpacing: 2.2,
             ),
           ),
         ),
         const SizedBox(height: 4),
         Text(
-          'Crisis Response & Volunteer Coordination',
-          style: GoogleFonts.dmSans(
-            fontSize: 11,
+          'Rapid response and volunteer coordination',
+          style: GoogleFonts.splineSans(
+            fontSize: 12,
             color: AppColors.textHint,
-            letterSpacing: 0.4,
+            letterSpacing: 0.2,
           ),
         ),
       ],
@@ -392,7 +343,7 @@ class _GoogleButtonState extends State<_GoogleButton>
               const SizedBox(width: 12),
               Text(
                 'Continue with Google',
-                style: GoogleFonts.dmSans(
+                style: GoogleFonts.splineSans(
                   color: AppColors.textPrimary,
                   fontWeight: FontWeight.w600,
                   fontSize: 15,
@@ -437,9 +388,9 @@ class _OrDivider extends StatelessWidget {
                 thickness: 1)),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12),
-          child: Text('or',
-              style: GoogleFonts.dmSans(
-                  color: AppColors.textHint, fontSize: 13)),
+            child: Text('or',
+              style: GoogleFonts.splineSans(
+                color: AppColors.textHint, fontSize: 13)),
         ),
         Expanded(
             child: Divider(
@@ -575,8 +526,8 @@ class _SignInFormState extends ConsumerState<_SignInForm>
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
                 child: Text('Forgot Password?',
-                    style: GoogleFonts.dmSans(
-                        fontSize: 13, color: AppColors.accent)),
+                  style: GoogleFonts.splineSans(
+                    fontSize: 13, color: AppColors.accent)),
               ),
             ),
             const SizedBox(height: 20),

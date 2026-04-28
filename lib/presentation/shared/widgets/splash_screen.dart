@@ -236,7 +236,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                           AppColors.accentGradient.createShader(bounds),
                       child: Text(
                         'CRISISCONNECT',
-                        style: GoogleFonts.rajdhani(
+                        style: GoogleFonts.spaceGrotesk(
                           fontSize: 36,
                           fontWeight: FontWeight.w700,
                           color: Colors.white,
@@ -253,7 +253,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                   opacity: _subtitleFade,
                   child: Text(
                     'EVERY SECOND COUNTS',
-                    style: GoogleFonts.dmSans(
+                    style: GoogleFonts.splineSans(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
                       color: AppColors.textHint,
@@ -280,9 +280,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
             child: FadeTransition(
               opacity: _subtitleFade,
               child: Text(
-                'INITIALIZING RESPONSE NETWORK',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.dmSans(
+                  'INITIALIZING RESPONSE NETWORK',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.splineSans(
                   fontSize: 9,
                   fontWeight: FontWeight.w600,
                   color: AppColors.textHint.withValues(alpha: 0.6),

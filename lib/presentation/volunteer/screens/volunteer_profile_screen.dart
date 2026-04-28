@@ -20,13 +20,17 @@ class _VolunteerProfileScreenState
     final profile = ref.watch(volunteerProfileProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('My Profile')),
-      body: Container(
-        decoration:
-            const BoxDecoration(gradient: AppColors.backgroundGradient),
+      body: AppBackground(
         child: ListView(
           padding: const EdgeInsets.all(24),
           children: [
+            AppHeader(
+              title: 'My Profile',
+              subtitle: 'Volunteer credentials and skills',
+              showBack: true,
+              onBack: () => Navigator.pop(context),
+            ),
+            const SizedBox(height: 20),
             GlassCard(
               child: Column(
                 children: [
@@ -67,13 +71,8 @@ class _VolunteerProfileScreenState
               const SizedBox(height: 20),
               _SectionHeader('Experience'),
               const SizedBox(height: 10),
-              Container(
+              GlassCard(
                 padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColors.surfaceVariant,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: AppColors.border),
-                ),
                 child: Row(
                   children: [
                     const Icon(Icons.verified_rounded,
@@ -87,13 +86,8 @@ class _VolunteerProfileScreenState
               const SizedBox(height: 20),
               _SectionHeader('License'),
               const SizedBox(height: 10),
-              Container(
+              GlassCard(
                 padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColors.surfaceVariant,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: AppColors.border),
-                ),
                 child: Row(
                   children: [
                     const Icon(Icons.workspace_premium_rounded,
